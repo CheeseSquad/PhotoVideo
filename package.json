@@ -1,0 +1,18 @@
+{
+  "name": "photo-validator-webrtc",
+  "version": "1.0.0",
+  "description": "This will do a thing its gunna be cool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascriptttttt"
+  ],
+  "author": "Marc G and Patrick S",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "standard": "^10.0.3"
+  }
+}
