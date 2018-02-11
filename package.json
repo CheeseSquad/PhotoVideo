@@ -4,7 +4,8 @@
   "description": "This will do a thing its gunna be cool",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack && node ./src/server.js",
+    "dist" : "webpack"
   },
   "keywords": [
     "javascriptttttt"
@@ -16,5 +17,13 @@
     "express": "^4.16.2",
     "multer": "^1.3.0",
     "standard": "^10.0.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "copy-webpack-plugin": "^4.4.1",
+    "webpack": "^3.11.0",
+    "webpack-dev-server": "^2.11.1"
   }
 }

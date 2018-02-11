@@ -10,7 +10,7 @@ const express = require('express')
 const path = require('path')
 const app = express()
 
-app.use(express.static(path.join(__dirname, '.')))
+app.use(express.static(path.join(__dirname, '../dist')))
 
 const httpServer = http.createServer(app)
 const httpsServer = https.createServer(credentials, app)
@@ -21,8 +21,10 @@ let upload = multer();
 app.post('/video', upload.single('video'), (req, res, next) => {
   let video = req.file
   console.log(video)
-  res.sendStatus(200);
+  res.sendStatus(200)
 });
 
 
-httpsServer.listen(3000, () => console.log('Magic happens on port ' + 3000))
+httpServer.listen(3001, () => console.log('Magic happens on port ' + 3001))
+
+httpsServer.listen(443, () => console.log('Magic happens on port ' + 443))
