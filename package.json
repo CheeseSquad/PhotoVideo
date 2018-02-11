@@ -4,7 +4,7 @@
   "description": "This will do a thing its gunna be cool",
   "main": "index.js",
   "scripts": {
-    "start": "rimraf ./dist & webpack && node ./src/server.js",
+    "start": "npm install; rimraf ./dist & webpack && node ./src/server.js",
     "dist": "webpack",
     "stop": "killall -SIGINT theThing || echo \"cant kill a dead server\""
   },
