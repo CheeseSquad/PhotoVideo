@@ -6,7 +6,7 @@
   "scripts": {
     "start": "rimraf ./dist & webpack && node ./src/server.js",
     "dist": "webpack",
-    "stop": "pkill --signal SIGINT theThing"
+    "stop": "killall -SIGINT theThing"
   },
   "keywords": [
     "javascriptttttt"
