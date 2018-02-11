@@ -1893,8 +1893,6 @@ var _require = __webpack_require__("./src/record.js"),
 var width = 1080;
 var height = void 0;
 
-var streaming = false;
-
 var startup = function startup() {
   var video = document.getElementById('video');
   var canvas = document.getElementById('canvas');
@@ -1917,21 +1915,14 @@ var startup = function startup() {
     console.log('An error occured! ' + err);
   });
 
-  video.addEventListener('canplay', function (ev) {
-    if (!streaming) {
-      height = video.videoHeight / (video.videoWidth / width);
+  video.canplay = function (ev) {
+    height = video.videoHeight / (video.videoWidth / width);
 
-      if (isNaN(height)) {
-        height = width / (4 / 3);
-      }
-
-      video.setAttribute('width', width);
-      video.setAttribute('height', height);
-      canvas.setAttribute('width', width);
-      canvas.setAttribute('height', height);
-      streaming = true;
-    }
-  }, false);
+    video.setAttribute('width', width);
+    video.setAttribute('height', height);
+    canvas.setAttribute('width', width);
+    canvas.setAttribute('height', height);
+  };
 
   startbutton.addEventListener('click', function (ev) {
     return takepicture(photo, video, canvas, height, width);
@@ -1957,7 +1948,6 @@ window.addEventListener('load', startup, false);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
 var axios = __webpack_require__("./node_modules/axios/index.js");
 
 var _require = __webpack_require__("./src/helpers.js"),
@@ -2046,7 +2036,6 @@ var takepicture = function takepicture(photo, video, canvas, height, width) {
   }, 1000);
 };
 
-exports.startRecording = startRecording;
 exports.play = play;
 exports.clearphoto = clearphoto;
 exports.takepicture = takepicture;

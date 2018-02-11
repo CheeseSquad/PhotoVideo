@@ -21,12 +21,12 @@ const play = () => {
   let recordedVideo = document.getElementById('recorded')
   let superBuffer = new window.Blob(recordedBlobs, { type: 'video/webm' })
   recordedVideo.src = window.URL.createObjectURL(superBuffer)
-  recordedVideo.addEventListener('loadedmetadata', function () {
+  recordedVideo.addEventListener('loadedmetadata', () => {
     if (recordedVideo.duration === Infinity) {
       recordedVideo.currentTime = 1e101
-      recordedVideo.ontimeupdate = function () {
+      recordedVideo.ontimeupdate = () => {
         recordedVideo.currentTime = 0
-        recordedVideo.ontimeupdate = function () {
+        recordedVideo.ontimeupdate = () => {
           delete recordedVideo.ontimeupdate
           recordedVideo.play()
         }

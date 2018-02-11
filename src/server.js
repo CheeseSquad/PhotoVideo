@@ -18,7 +18,7 @@ const httpsServer = https.createServer(credentials, app)
 let multer = require('multer')
 let upload = multer()
 
-process.title = "theThing"
+process.title = 'theThing'
 
 app.post('/video', upload.single('video'), (req, res, next) => {
   let video = req.file
