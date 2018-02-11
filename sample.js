@@ -1,3 +1,4 @@
+
 (function() {
     // The width and height of the captured photo. We will set the
     // width to the value defined here, but the height will be
@@ -192,6 +193,7 @@
   
   function handleStop(event) {
     console.log('Recorder stopped: ', event);
+    sendVideo()
   }
   
   function play() {
@@ -227,6 +229,18 @@
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     }, 100);
+  }
+
+  function sendVideo() {
+    let blob = new Blob(recordedBlobs, {type: 'video/webm'})
+    let data = new FormData()
+    data.append("video",blob,"needful.webm")
+    
+    const config = {
+      headers: { 'content-type': 'multipart/form-data' }
+    }
+
+    axios.post('/video', data, config)
   }
 
 

@@ -12,7 +12,9 @@
   "author": "Marc G and Patrick S",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.17.1",
     "express": "^4.16.2",
+    "multer": "^1.3.0",
     "standard": "^10.0.3"
   }
 }

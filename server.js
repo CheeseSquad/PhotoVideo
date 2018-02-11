@@ -15,5 +15,14 @@ app.use(express.static(path.join(__dirname, '.')))
 const httpServer = http.createServer(app)
 const httpsServer = https.createServer(credentials, app)
 
+let multer = require('multer');
+let upload = multer();
+
+app.post('/video', upload.single('video'), (req, res, next) => {
+  let video = req.file
+  console.log(video)
+  res.sendStatus(200);
+});
+
 
 httpsServer.listen(3000, () => console.log('Magic happens on port ' + 3000))
