@@ -24,7 +24,6 @@ app.post('/video', upload.single('video'), (req, res, next) => {
   res.sendStatus(200)
 })
 
-httpsServer.listen(3000, () => console.log('Magic happens on port ' + 3000))
-
-httpServer.listen(3001, () => console.log('Magic happens on port ' + 3001))
+httpServer.listen(3000, () => console.log('HTTP listening on local port 3000'))
+httpsServer.listen(3001, () => console.log('HTTPS listening on local port 3001'))
 
