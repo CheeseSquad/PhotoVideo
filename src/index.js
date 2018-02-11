@@ -1,4 +1,4 @@
-const {play, startRecording, stopRecording} = require('./record')
+const { play, startRecording, stopRecording } = require('./record')
 
 // The width and height of the captured photo. We will set the
 // width to the value defined here, but the height will be
@@ -18,46 +18,36 @@ let video = null
 let canvas = null
 let photo = null
 let startbutton = null
+let playButton = null
 
 const startup = () => {
   video = document.getElementById('video')
   canvas = document.getElementById('canvas')
   photo = document.getElementById('photo')
   startbutton = document.getElementById('startbutton')
-
-  document.getElementById('doTheThing').onclick = play
+  playButton = document.getElementById('doTheThing')
 
   navigator.getMedia = (navigator.getUserMedia ||
     navigator.webkitGetUserMedia ||
     navigator.mozGetUserMedia ||
     navigator.msGetUserMedia)
 
-  navigator.getMedia(
-    {
-      video: true,
-      audio: false
-    },
-    function (stream) {
-      if (navigator.mozGetUserMedia) {
-        video.mozSrcObject = stream
-      } else {
-        let vendorURL = window.URL || window.webkitURL
-        video.src = vendorURL.createObjectURL(stream)
-      }
-      window.stream = stream
-      video.play()
-    },
-    function (err) {
-      console.log('An error occured! ' + err)
+  navigator.getMedia({ video: true, audio: false }, (stream) => {
+    if (navigator.mozGetUserMedia) {
+      video.mozSrcObject = stream
+    } else {
+      let vendorURL = window.URL || window.webkitURL
+      video.src = vendorURL.createObjectURL(stream)
     }
-  )
+    window.stream = stream
+    video.play()
+  }, (err) => {
+    console.log('An error occured! ' + err)
+  })
 
-  video.addEventListener('canplay', function (ev) {
+  video.addEventListener('canplay', (ev) => {
     if (!streaming) {
       height = video.videoHeight / (video.videoWidth / width)
-
-      // Firefox currently has a bug where the height can't be read from
-      // the video, so we will make assumptions if this happens.
 
       if (isNaN(height)) {
         height = width / (4 / 3)
@@ -71,10 +61,9 @@ const startup = () => {
     }
   }, false)
 
-  startbutton.addEventListener('click', function (ev) {
-    takepicture()
-    ev.preventDefault()
-  }, false)
+  startbutton.addEventListener('click', (ev) => takepicture())
+
+  playButton.addEventListener('click', (ev) => play())
 
   clearphoto()
 }
@@ -118,19 +107,3 @@ const takepicture = () => {
 }
 
 window.addEventListener('load', startup, false)
-
-// const handleSuccess = (stream) => {
-//   console.log('getUserMedia() got stream: ', stream)
-//   window.stream = stream
-//   //gumVideo.srcObject = stream
-// }
-
-// const handleError = (error) => {
-//   console.log('navigator.getUserMedia error: ', error)
-// }
-
-// const handleSourceOpen = (event) => {
-//   console.log('MediaSource opened')
-//   //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
-//   //console.log('Source buffer: ', sourceBuffer)
-// }

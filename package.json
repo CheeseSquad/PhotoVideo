@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm install; rimraf ./dist & webpack && node ./src/server.js",
+    "start:dev": "rimraf ./dist & webpack && node ./src/server.js",
     "dist": "webpack",
     "stop": "killall -SIGINT theThing || echo \"cant kill a dead server\""
   },

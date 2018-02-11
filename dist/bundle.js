@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/sample.js");
+/******/ 	return __webpack_require__(__webpack_require__.s = "./src/index.js");
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -1851,13 +1851,17 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
-/***/ "./src/sample.js":
+/***/ "./src/index.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var axios = __webpack_require__("./node_modules/axios/index.js");
+var _require = __webpack_require__("./src/record.js"),
+    play = _require.play,
+    startRecording = _require.startRecording,
+    stopRecording = _require.stopRecording;
+
 // The width and height of the captured photo. We will set the
 // width to the value defined here, but the height will be
 // calculated based on the aspect ratio of the input stream.
@@ -1869,9 +1873,6 @@ var height = 0; // This will be computed based on the input stream
 // video from the camera. Obviously, we start at false.
 
 var streaming = false;
-var recordedBlobs = void 0;
-var mediaRecorder = void 0;
-
 // The various HTML elements we need to configure or control. These
 // will be set by the startup() function.
 
@@ -1879,21 +1880,18 @@ var video = null;
 var canvas = null;
 var photo = null;
 var startbutton = null;
+var playButton = null;
 
 var startup = function startup() {
   video = document.getElementById('video');
   canvas = document.getElementById('canvas');
   photo = document.getElementById('photo');
   startbutton = document.getElementById('startbutton');
-
-  document.getElementById('doTheThing').onclick = play;
+  playButton = document.getElementById('doTheThing');
 
   navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
-  navigator.getMedia({
-    video: true,
-    audio: false
-  }, function (stream) {
+  navigator.getMedia({ video: true, audio: false }, function (stream) {
     if (navigator.mozGetUserMedia) {
       video.mozSrcObject = stream;
     } else {
@@ -1910,9 +1908,6 @@ var startup = function startup() {
     if (!streaming) {
       height = video.videoHeight / (video.videoWidth / width);
 
-      // Firefox currently has a bug where the height can't be read from
-      // the video, so we will make assumptions if this happens.
-
       if (isNaN(height)) {
         height = width / (4 / 3);
       }
@@ -1926,9 +1921,12 @@ var startup = function startup() {
   }, false);
 
   startbutton.addEventListener('click', function (ev) {
-    takepicture();
-    ev.preventDefault();
-  }, false);
+    return takepicture();
+  });
+
+  playButton.addEventListener('click', function (ev) {
+    return play();
+  });
 
   clearphoto();
 };
@@ -1973,34 +1971,39 @@ var takepicture = function takepicture() {
   }, 1000);
 };
 
+window.addEventListener('load', startup, false);
+
+/***/ }),
+
+/***/ "./src/record.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var axios = __webpack_require__("./node_modules/axios/index.js");
+
+var mediaRecorder = void 0;
+var recordedBlobs = void 0;
+
 var startRecording = function startRecording() {
   recordedBlobs = [];
-  var options = { mimeType: 'video/webmcodecs=vp9' };
-  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(options.mimeType + ' is not Supported');
-    options = { mimeType: 'video/webmcodecs=vp8' };
-    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(options.mimeType + ' is not Supported');
-      options = { mimeType: 'video/webm' };
-      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(options.mimeType + ' is not Supported');
-        options = { mimeType: '' };
-      }
-    }
-  }
+  var options = setMimeType();
+
   try {
     mediaRecorder = new window.MediaRecorder(window.stream, options);
   } catch (e) {
     console.error('Exception while creating MediaRecorder: ' + e);
-    window.alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType);
-    return;
   }
 
-  document.getElementById('doTheThing').onclick = play;
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
-  mediaRecorder.start(10); // collect 10ms of data
+  mediaRecorder.start(10);
   console.log('MediaRecorder started', mediaRecorder);
 };
 
@@ -2008,22 +2011,6 @@ var stopRecording = function stopRecording() {
   mediaRecorder.stop();
   console.log('Recorded Blobs: ', recordedBlobs);
 };
-
-// const handleSuccess = (stream) => {
-//   console.log('getUserMedia() got stream: ', stream)
-//   window.stream = stream
-//   //gumVideo.srcObject = stream
-// }
-
-// const handleError = (error) => {
-//   console.log('navigator.getUserMedia error: ', error)
-// }
-
-// const handleSourceOpen = (event) => {
-//   console.log('MediaSource opened')
-//   //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
-//   //console.log('Source buffer: ', sourceBuffer)
-// }
 
 var handleDataAvailable = function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
@@ -2034,15 +2021,12 @@ var handleDataAvailable = function handleDataAvailable(event) {
 var handleStop = function handleStop(event) {
   console.log('Recorder stopped: ', event);
   sendVideo();
-  download();
 };
 
 var play = function play() {
   var recordedVideo = document.getElementById('recorded');
   var superBuffer = new window.Blob(recordedBlobs, { type: 'video/webm' });
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
-  // workaround for non-seekable video taken from
-  // https://bugs.chromium.org/p/chromium/issues/detail?id=642012#c23
   recordedVideo.addEventListener('loadedmetadata', function () {
     if (recordedVideo.duration === Infinity) {
       recordedVideo.currentTime = 1e101;
@@ -2057,21 +2041,6 @@ var play = function play() {
   });
 };
 
-var download = function download() {
-  var blob = new window.Blob(recordedBlobs, { type: 'video/webm' });
-  var url = window.URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.style.display = 'none';
-  a.href = url;
-  a.download = 'test.webm';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function () {
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  }, 100);
-};
-
 var sendVideo = function sendVideo() {
   var blob = new window.Blob(recordedBlobs, { type: 'video/webm' });
   var data = new window.FormData();
@@ -2084,7 +2053,26 @@ var sendVideo = function sendVideo() {
   axios.post('/video', data, config);
 };
 
-window.addEventListener('load', startup, false);
+var setMimeType = function setMimeType() {
+  var options = { mimeType: 'video/webmcodecs=vp9' };
+  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.log(options.mimeType + ' is not Supported');
+    options = { mimeType: 'video/webmcodecs=vp8' };
+    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.log(options.mimeType + ' is not Supported');
+      options = { mimeType: 'video/webm' };
+      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.log(options.mimeType + ' is not Supported');
+        options = { mimeType: '' };
+      }
+    }
+  }
+  return options;
+};
+
+exports.startRecording = startRecording;
+exports.stopRecording = stopRecording;
+exports.play = play;
 
 /***/ })
 
