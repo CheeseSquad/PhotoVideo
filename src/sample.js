@@ -123,20 +123,20 @@ const takepicture = () => {
 const startRecording = () => {
   recordedBlobs = []
   let options = { mimeType: 'video/webmcodecs=vp9' }
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
     console.log(options.mimeType + ' is not Supported')
     options = { mimeType: 'video/webmcodecs=vp8' }
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
       console.log(options.mimeType + ' is not Supported')
       options = { mimeType: 'video/webm' }
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
         console.log(options.mimeType + ' is not Supported')
         options = { mimeType: '' }
       }
     }
   }
   try {
-    mediaRecorder = new MediaRecorder(window.stream, options)
+    mediaRecorder = new window.MediaRecorder(window.stream, options)
   } catch (e) {
     console.error('Exception while creating MediaRecorder: ' + e)
     window.alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType)
@@ -156,22 +156,6 @@ const stopRecording = () => {
   console.log('Recorded Blobs: ', recordedBlobs)
 }
 
-const handleSuccess = (stream) => {
-  console.log('getUserMedia() got stream: ', stream)
-  window.stream = stream
-  //gumVideo.srcObject = stream
-}
-
-const handleError = (error) => {
-  console.log('navigator.getUserMedia error: ', error)
-}
-
-const handleSourceOpen = (event) => {
-  console.log('MediaSource opened')
-  //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
-  //console.log('Source buffer: ', sourceBuffer)
-}
-
 const handleDataAvailable = (event) => {
   if (event.data && event.data.size > 0) {
     recordedBlobs.push(event.data)
@@ -184,8 +168,9 @@ const handleStop = (event) => {
 }
 
 const play = () => {
+  download()
   let recordedVideo = document.getElementById('recorded')
-  let superBuffer = new Blob(recordedBlobs, { type: 'video/webm' })
+  let superBuffer = new window.Blob(recordedBlobs, { type: 'video/webm' })
   recordedVideo.src = window.URL.createObjectURL(superBuffer)
   // workaround for non-seekable video taken from
   // https://bugs.chromium.org/p/chromium/issues/detail?id=642012#c23
@@ -204,7 +189,7 @@ const play = () => {
 }
 
 const download = () => {
-  let blob = new Blob(recordedBlobs, { type: 'video/webm' })
+  let blob = new window.Blob(recordedBlobs, { type: 'video/webm' })
   let url = window.URL.createObjectURL(blob)
   let a = document.createElement('a')
   a.style.display = 'none'
@@ -219,8 +204,8 @@ const download = () => {
 }
 
 const sendVideo = () => {
-  let blob = new Blob(recordedBlobs, { type: 'video/webm' })
-  let data = new FormData()
+  let blob = new window.Blob(recordedBlobs, { type: 'video/webm' })
+  let data = new window.FormData()
   data.append('video', blob, 'needful.webm')
 
   const config = {
@@ -231,3 +216,19 @@ const sendVideo = () => {
 }
 
 window.addEventListener('load', startup, false)
+
+// const handleSuccess = (stream) => {
+//   console.log('getUserMedia() got stream: ', stream)
+//   window.stream = stream
+//   //gumVideo.srcObject = stream
+// }
+
+// const handleError = (error) => {
+//   console.log('navigator.getUserMedia error: ', error)
+// }
+
+// const handleSourceOpen = (event) => {
+//   console.log('MediaSource opened')
+//   //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
+//   //console.log('Source buffer: ', sourceBuffer)
+// }

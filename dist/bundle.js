@@ -1886,7 +1886,7 @@ var startup = function startup() {
   photo = document.getElementById('photo');
   startbutton = document.getElementById('startbutton');
 
-  document.getElementById("doTheThing").onclick = play;
+  document.getElementById('doTheThing').onclick = play;
 
   navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
@@ -1903,7 +1903,7 @@ var startup = function startup() {
     window.stream = stream;
     video.play();
   }, function (err) {
-    console.log("An error occured! " + err);
+    console.log('An error occured! ' + err);
   });
 
   video.addEventListener('canplay', function (ev) {
@@ -1938,7 +1938,7 @@ var startup = function startup() {
 
 var clearphoto = function clearphoto() {
   var context = canvas.getContext('2d');
-  context.fillStyle = "#AAA";
+  context.fillStyle = '#AAA';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
   var data = canvas.toDataURL('image/png');
@@ -1973,44 +1973,30 @@ var takepicture = function takepicture() {
   }, 1000);
 };
 
-// Set up our event listener to run the startup process
-// once loading is complete.
-
-var toggleRecording = function toggleRecording() {
-  if (recordButton.textContent === 'Start Recording') {
-    startRecording();
-  } else {
-    stopRecording();
-    recordButton.textContent = 'Start Recording';
-    playButton.disabled = false;
-    downloadButton.disabled = false;
-  }
-};
-
 var startRecording = function startRecording() {
   recordedBlobs = [];
   var options = { mimeType: 'video/webmcodecs=vp9' };
-  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
     console.log(options.mimeType + ' is not Supported');
     options = { mimeType: 'video/webmcodecs=vp8' };
-    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
       console.log(options.mimeType + ' is not Supported');
       options = { mimeType: 'video/webm' };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
         console.log(options.mimeType + ' is not Supported');
         options = { mimeType: '' };
       }
     }
   }
   try {
-    mediaRecorder = new MediaRecorder(window.stream, options);
+    mediaRecorder = new window.MediaRecorder(window.stream, options);
   } catch (e) {
     console.error('Exception while creating MediaRecorder: ' + e);
-    alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType);
+    window.alert('Exception while creating MediaRecorder: ' + e + '. mimeType: ' + options.mimeType);
     return;
   }
 
-  document.getElementById("doTheThing").onclick = play;
+  document.getElementById('doTheThing').onclick = play;
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
   mediaRecorder.onstop = handleStop;
   mediaRecorder.ondataavailable = handleDataAvailable;
@@ -2023,21 +2009,21 @@ var stopRecording = function stopRecording() {
   console.log('Recorded Blobs: ', recordedBlobs);
 };
 
-var handleSuccess = function handleSuccess(stream) {
-  console.log('getUserMedia() got stream: ', stream);
-  window.stream = stream;
-  //gumVideo.srcObject = stream
-};
+// const handleSuccess = (stream) => {
+//   console.log('getUserMedia() got stream: ', stream)
+//   window.stream = stream
+//   //gumVideo.srcObject = stream
+// }
 
-var handleError = function handleError(error) {
-  console.log('navigator.getUserMedia error: ', error);
-};
+// const handleError = (error) => {
+//   console.log('navigator.getUserMedia error: ', error)
+// }
 
-var handleSourceOpen = function handleSourceOpen(event) {
-  console.log('MediaSource opened');
-  //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
-  //console.log('Source buffer: ', sourceBuffer)
-};
+// const handleSourceOpen = (event) => {
+//   console.log('MediaSource opened')
+//   //sourceBuffer = mediaSource.addSourceBuffer('video/webm codecs="vp8"')
+//   //console.log('Source buffer: ', sourceBuffer)
+// }
 
 var handleDataAvailable = function handleDataAvailable(event) {
   if (event.data && event.data.size > 0) {
@@ -2048,11 +2034,12 @@ var handleDataAvailable = function handleDataAvailable(event) {
 var handleStop = function handleStop(event) {
   console.log('Recorder stopped: ', event);
   sendVideo();
+  download();
 };
 
 var play = function play() {
-  var recordedVideo = document.getElementById("recorded");
-  var superBuffer = new Blob(recordedBlobs, { type: 'video/webm' });
+  var recordedVideo = document.getElementById('recorded');
+  var superBuffer = new window.Blob(recordedBlobs, { type: 'video/webm' });
   recordedVideo.src = window.URL.createObjectURL(superBuffer);
   // workaround for non-seekable video taken from
   // https://bugs.chromium.org/p/chromium/issues/detail?id=642012#c23
@@ -2071,7 +2058,7 @@ var play = function play() {
 };
 
 var download = function download() {
-  var blob = new Blob(recordedBlobs, { type: 'video/webm' });
+  var blob = new window.Blob(recordedBlobs, { type: 'video/webm' });
   var url = window.URL.createObjectURL(blob);
   var a = document.createElement('a');
   a.style.display = 'none';
@@ -2086,9 +2073,9 @@ var download = function download() {
 };
 
 var sendVideo = function sendVideo() {
-  var blob = new Blob(recordedBlobs, { type: 'video/webm' });
-  var data = new FormData();
-  data.append("video", blob, "needful.webm");
+  var blob = new window.Blob(recordedBlobs, { type: 'video/webm' });
+  var data = new window.FormData();
+  data.append('video', blob, 'needful.webm');
 
   var config = {
     headers: { 'content-type': 'multipart/form-data' }
