@@ -1,20 +1,19 @@
 const axios = require('axios')
-const { setMimeType } = require('./helpers')
+const { setMimeType, MediaRecorderPromise } = require('./helpers')
 
-let mediaRecorder
 let recordedBlobs
 
 const startRecording = () => {
   recordedBlobs = []
   let options = setMimeType()
-
-  try { mediaRecorder = new window.MediaRecorder(window.stream, options) } catch (e) { console.error('Exception while creating MediaRecorder: ' + e) }
-
-  console.log('Created MediaRecorder', mediaRecorder, 'with options', options)
-  mediaRecorder.onstop = sendVideo()
-  mediaRecorder.ondataavailable = (event) => recordedBlobs.push(event.data)
-  mediaRecorder.start(10)
-  console.log('MediaRecorder started', mediaRecorder)
+  MediaRecorderPromise(options).then((mediaRecorder) => {
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', options)
+    mediaRecorder.onstop = sendVideo()
+    mediaRecorder.ondataavailable = (event) => recordedBlobs.push(event.data)
+    mediaRecorder.start(10)
+    setTimeout(() => { mediaRecorder.stop() }, 3000)
+    console.log('MediaRecorder started', mediaRecorder)
+  }).catch(e => console('We had an error', e))
 }
 
 const play = () => {
@@ -59,7 +58,6 @@ const clearphoto = (photo, canvas) => {
 const takepicture = (photo, video, canvas, height, width) => {
   video.classList.add('focus')
   startRecording()
-  setTimeout(() => { mediaRecorder.stop() }, 3000)
   setTimeout(() => {
     let context = canvas.getContext('2d')
     if (width && height) {

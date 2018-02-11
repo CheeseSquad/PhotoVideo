@@ -1860,6 +1860,16 @@ process.umask = function() { return 0; };
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+var MediaRecorderPromise = exports.MediaRecorderPromise = function MediaRecorderPromise(options) {
+  return new Promise(function (resolve, reject) {
+    try {
+      resolve(new window.MediaRecorder(window.stream, options));
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};
+
 var setMimeType = exports.setMimeType = function setMimeType() {
   var options = { mimeType: 'video/webmcodecs=vp9' };
   if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
@@ -1915,14 +1925,14 @@ var startup = function startup() {
     console.log('An error occured! ' + err);
   });
 
-  video.canplay = function (ev) {
+  video.addEventListener('canplay', function (ev) {
     height = video.videoHeight / (video.videoWidth / width);
 
     video.setAttribute('width', width);
     video.setAttribute('height', height);
     canvas.setAttribute('width', width);
     canvas.setAttribute('height', height);
-  };
+  }, false);
 
   startbutton.addEventListener('click', function (ev) {
     return takepicture(photo, video, canvas, height, width);
@@ -1951,28 +1961,28 @@ Object.defineProperty(exports, "__esModule", {
 var axios = __webpack_require__("./node_modules/axios/index.js");
 
 var _require = __webpack_require__("./src/helpers.js"),
-    setMimeType = _require.setMimeType;
+    setMimeType = _require.setMimeType,
+    MediaRecorderPromise = _require.MediaRecorderPromise;
 
-var mediaRecorder = void 0;
 var recordedBlobs = void 0;
 
 var startRecording = function startRecording() {
   recordedBlobs = [];
   var options = setMimeType();
-
-  try {
-    mediaRecorder = new window.MediaRecorder(window.stream, options);
-  } catch (e) {
-    console.error('Exception while creating MediaRecorder: ' + e);
-  }
-
-  console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  mediaRecorder.onstop = sendVideo();
-  mediaRecorder.ondataavailable = function (event) {
-    return recordedBlobs.push(event.data);
-  };
-  mediaRecorder.start(10);
-  console.log('MediaRecorder started', mediaRecorder);
+  MediaRecorderPromise(options).then(function (mediaRecorder) {
+    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
+    mediaRecorder.onstop = sendVideo();
+    mediaRecorder.ondataavailable = function (event) {
+      return recordedBlobs.push(event.data);
+    };
+    mediaRecorder.start(10);
+    setTimeout(function () {
+      mediaRecorder.stop();
+    }, 3000);
+    console.log('MediaRecorder started', mediaRecorder);
+  }).catch(function (e) {
+    return console('We had an error', e);
+  });
 };
 
 var play = function play() {
@@ -2017,9 +2027,6 @@ var clearphoto = function clearphoto(photo, canvas) {
 var takepicture = function takepicture(photo, video, canvas, height, width) {
   video.classList.add('focus');
   startRecording();
-  setTimeout(function () {
-    mediaRecorder.stop();
-  }, 3000);
   setTimeout(function () {
     var context = canvas.getContext('2d');
     if (width && height) {
