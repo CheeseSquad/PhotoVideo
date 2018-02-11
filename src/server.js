@@ -1,8 +1,8 @@
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
-const privateKey  = fs.readFileSync('./ssl/server.key', 'utf8')
-const certificate = fs.readFileSync('./ssl/server.crt', 'utf8')
+const privateKey  = fs.readFileSync('./ssl/apache-selfsigned.key', 'utf8')
+const certificate = fs.readFileSync('./ssl/apache-selfsigned.crt', 'utf8')
 
 const credentials = {key: privateKey, cert: certificate}
 

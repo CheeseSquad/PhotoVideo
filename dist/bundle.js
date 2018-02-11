@@ -1863,27 +1863,28 @@ var axios = _interopRequireWildcard(_axios);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var Axios = __webpack_require__("./node_modules/axios/index.js")(function () {
-  // The width and height of the captured photo. We will set the
-  // width to the value defined here, but the height will be
-  // calculated based on the aspect ratio of the input stream.
+// The width and height of the captured photo. We will set the
+// width to the value defined here, but the height will be
+// calculated based on the aspect ratio of the input stream.
 
-  var width = 1080; // We will scale the photo width to this
-  var height = 0; // This will be computed based on the input stream
+var width = 1080; // We will scale the photo width to this
+var height = 0; // This will be computed based on the input stream
 
-  // |streaming| indicates whether or not we're currently streaming
-  // video from the camera. Obviously, we start at false.
+// |streaming| indicates whether or not we're currently streaming
+// video from the camera. Obviously, we start at false.
 
-  var streaming = false;
-  var recordedBlobs;
+var streaming = false;
+var recordedBlobs;
 
-  // The various HTML elements we need to configure or control. These
-  // will be set by the startup() function.
+// The various HTML elements we need to configure or control. These
+// will be set by the startup() function.
 
-  var video = null;
-  var canvas = null;
-  var photo = null;
-  var startbutton = null;
+var video = null;
+var canvas = null;
+var photo = null;
+var startbutton = null;
+
+(function () {
 
   function startup() {
     video = document.getElementById('video');
