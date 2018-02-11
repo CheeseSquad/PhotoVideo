@@ -22,9 +22,9 @@ app.post('/video', upload.single('video'), (req, res, next) => {
   let video = req.file
   console.log(video)
   res.sendStatus(200)
-});
+})
 
+httpsServer.listen(3000, () => console.log('Magic happens on port ' + 3000))
 
 httpServer.listen(3001, () => console.log('Magic happens on port ' + 3001))
 
-httpsServer.listen(3000, () => console.log('Magic happens on port ' + 3000))

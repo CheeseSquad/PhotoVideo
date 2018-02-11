@@ -1,5 +1,7 @@
 
-import * as axios from axios
+import * as axios from 'axios'
+
+const Axios = require('axios')
 (function() {
     // The width and height of the captured photo. We will set the
     // width to the value defined here, but the height will be
