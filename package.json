@@ -6,7 +6,7 @@
   "scripts": {
     "start": "rimraf ./dist & webpack && node ./src/server.js",
     "dist": "webpack",
-    "stop": "killall -SIGINT theThing || echo \"cant kill a dead server lol\""
+    "stop": "killall -SIGINT theThing || echo \"cant kill a dead server\""
   },
   "keywords": [
     "javascriptttttt"
