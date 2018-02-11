@@ -6,7 +6,7 @@
   "scripts": {
     "start": "rimraf ./dist & webpack && node ./src/server.js",
     "dist": "webpack",
-    "stop": "killall -SIGINT theThing"
+    "stop": "killall -SIGINT theThing || echo \"server was not already running what did you break patrick\""
   },
   "keywords": [
     "javascriptttttt"
