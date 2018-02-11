@@ -1,5 +1,5 @@
-
 const axios = require('axios')
+const { setMimeType } = require('./helpers')
 
 let mediaRecorder
 let recordedBlobs
@@ -11,26 +11,10 @@ const startRecording = () => {
   try { mediaRecorder = new window.MediaRecorder(window.stream, options) } catch (e) { console.error('Exception while creating MediaRecorder: ' + e) }
 
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options)
-  mediaRecorder.onstop = handleStop
-  mediaRecorder.ondataavailable = handleDataAvailable
+  mediaRecorder.onstop = sendVideo()
+  mediaRecorder.ondataavailable = (event) => recordedBlobs.push(event.data)
   mediaRecorder.start(10)
   console.log('MediaRecorder started', mediaRecorder)
-}
-
-const stopRecording = () => {
-  mediaRecorder.stop()
-  console.log('Recorded Blobs: ', recordedBlobs)
-}
-
-const handleDataAvailable = (event) => {
-  if (event.data && event.data.size > 0) {
-    recordedBlobs.push(event.data)
-  }
-}
-
-const handleStop = (event) => {
-  console.log('Recorder stopped: ', event)
-  sendVideo()
 }
 
 const play = () => {
@@ -63,21 +47,33 @@ const sendVideo = () => {
   axios.post('/video', data, config)
 }
 
-const setMimeType = () => {
-  let options = { mimeType: 'video/webmcodecs=vp9' }
-  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(options.mimeType + ' is not Supported')
-    options = { mimeType: 'video/webmcodecs=vp8' }
-    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(options.mimeType + ' is not Supported')
-      options = { mimeType: 'video/webm' }
-      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(options.mimeType + ' is not Supported')
-        options = { mimeType: '' }
-      }
-    }
-  }
-  return options
+const clearphoto = (photo, canvas) => {
+  let context = canvas.getContext('2d')
+  context.fillStyle = '#AAA'
+  context.fillRect(0, 0, canvas.width, canvas.height)
+
+  let data = canvas.toDataURL('image/png')
+  photo.setAttribute('src', data)
 }
 
-export { startRecording, stopRecording, play }
+const takepicture = (photo, video, canvas, height, width) => {
+  video.classList.add('focus')
+  startRecording()
+  setTimeout(() => { mediaRecorder.stop() }, 3000)
+  setTimeout(() => {
+    let context = canvas.getContext('2d')
+    if (width && height) {
+      canvas.width = width
+      canvas.height = height
+      context.drawImage(video, 0, 0, width, height)
+
+      let data = canvas.toDataURL('image/png')
+      photo.setAttribute('src', data)
+    } else {
+      clearphoto(photo, canvas)
+    }
+    video.classList.remove('focus')
+  }, 1000)
+}
+
+export { play, clearphoto, takepicture }

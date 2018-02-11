@@ -1851,6 +1851,34 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./src/helpers.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var setMimeType = exports.setMimeType = function setMimeType() {
+  var options = { mimeType: 'video/webmcodecs=vp9' };
+  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+    console.log(options.mimeType + ' is not Supported');
+    options = { mimeType: 'video/webmcodecs=vp8' };
+    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+      console.log(options.mimeType + ' is not Supported');
+      options = { mimeType: 'video/webm' };
+      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
+        console.log(options.mimeType + ' is not Supported');
+        options = { mimeType: '' };
+      }
+    }
+  }
+  return options;
+};
+
+/***/ }),
+
 /***/ "./src/index.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1859,35 +1887,20 @@ process.umask = function() { return 0; };
 
 var _require = __webpack_require__("./src/record.js"),
     play = _require.play,
-    startRecording = _require.startRecording,
-    stopRecording = _require.stopRecording;
+    clearphoto = _require.clearphoto,
+    takepicture = _require.takepicture;
 
-// The width and height of the captured photo. We will set the
-// width to the value defined here, but the height will be
-// calculated based on the aspect ratio of the input stream.
-
-var width = 1080; // We will scale the photo width to this
-var height = 0; // This will be computed based on the input stream
-
-// |streaming| indicates whether or not we're currently streaming
-// video from the camera. Obviously, we start at false.
+var width = 1080;
+var height = void 0;
 
 var streaming = false;
-// The various HTML elements we need to configure or control. These
-// will be set by the startup() function.
-
-var video = null;
-var canvas = null;
-var photo = null;
-var startbutton = null;
-var playButton = null;
 
 var startup = function startup() {
-  video = document.getElementById('video');
-  canvas = document.getElementById('canvas');
-  photo = document.getElementById('photo');
-  startbutton = document.getElementById('startbutton');
-  playButton = document.getElementById('doTheThing');
+  var video = document.getElementById('video');
+  var canvas = document.getElementById('canvas');
+  var photo = document.getElementById('photo');
+  var startbutton = document.getElementById('startbutton');
+  var playButton = document.getElementById('doTheThing');
 
   navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
@@ -1921,54 +1934,14 @@ var startup = function startup() {
   }, false);
 
   startbutton.addEventListener('click', function (ev) {
-    return takepicture();
+    return takepicture(photo, video, canvas, height, width);
   });
 
   playButton.addEventListener('click', function (ev) {
     return play();
   });
 
-  clearphoto();
-};
-
-// Fill the photo with an indication that none has been
-// captured.
-
-var clearphoto = function clearphoto() {
-  var context = canvas.getContext('2d');
-  context.fillStyle = '#AAA';
-  context.fillRect(0, 0, canvas.width, canvas.height);
-
-  var data = canvas.toDataURL('image/png');
-  photo.setAttribute('src', data);
-};
-
-// Capture a photo by fetching the current contents of the video
-// and drawing it into a canvas, then converting that to a PNG
-// format data URL. By drawing it on an offscreen canvas and then
-// drawing that to the screen, we can change its size and/or apply
-// other changes before drawing it.
-
-var takepicture = function takepicture() {
-  video.classList.add('focus');
-  startRecording();
-  setTimeout(function () {
-    stopRecording();
-  }, 3000);
-  setTimeout(function () {
-    var context = canvas.getContext('2d');
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
-
-      var data = canvas.toDataURL('image/png');
-      photo.setAttribute('src', data);
-    } else {
-      clearphoto();
-    }
-    video.classList.remove('focus');
-  }, 1000);
+  clearphoto(photo, canvas);
 };
 
 window.addEventListener('load', startup, false);
@@ -1987,6 +1960,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var axios = __webpack_require__("./node_modules/axios/index.js");
 
+var _require = __webpack_require__("./src/helpers.js"),
+    setMimeType = _require.setMimeType;
+
 var mediaRecorder = void 0;
 var recordedBlobs = void 0;
 
@@ -2001,26 +1977,12 @@ var startRecording = function startRecording() {
   }
 
   console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-  mediaRecorder.onstop = handleStop;
-  mediaRecorder.ondataavailable = handleDataAvailable;
+  mediaRecorder.onstop = sendVideo();
+  mediaRecorder.ondataavailable = function (event) {
+    return recordedBlobs.push(event.data);
+  };
   mediaRecorder.start(10);
   console.log('MediaRecorder started', mediaRecorder);
-};
-
-var stopRecording = function stopRecording() {
-  mediaRecorder.stop();
-  console.log('Recorded Blobs: ', recordedBlobs);
-};
-
-var handleDataAvailable = function handleDataAvailable(event) {
-  if (event.data && event.data.size > 0) {
-    recordedBlobs.push(event.data);
-  }
-};
-
-var handleStop = function handleStop(event) {
-  console.log('Recorder stopped: ', event);
-  sendVideo();
 };
 
 var play = function play() {
@@ -2053,26 +2015,41 @@ var sendVideo = function sendVideo() {
   axios.post('/video', data, config);
 };
 
-var setMimeType = function setMimeType() {
-  var options = { mimeType: 'video/webmcodecs=vp9' };
-  if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-    console.log(options.mimeType + ' is not Supported');
-    options = { mimeType: 'video/webmcodecs=vp8' };
-    if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-      console.log(options.mimeType + ' is not Supported');
-      options = { mimeType: 'video/webm' };
-      if (!window.MediaRecorder.isTypeSupported(options.mimeType)) {
-        console.log(options.mimeType + ' is not Supported');
-        options = { mimeType: '' };
-      }
+var clearphoto = function clearphoto(photo, canvas) {
+  var context = canvas.getContext('2d');
+  context.fillStyle = '#AAA';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  var data = canvas.toDataURL('image/png');
+  photo.setAttribute('src', data);
+};
+
+var takepicture = function takepicture(photo, video, canvas, height, width) {
+  video.classList.add('focus');
+  startRecording();
+  setTimeout(function () {
+    mediaRecorder.stop();
+  }, 3000);
+  setTimeout(function () {
+    var context = canvas.getContext('2d');
+    if (width && height) {
+      canvas.width = width;
+      canvas.height = height;
+      context.drawImage(video, 0, 0, width, height);
+
+      var data = canvas.toDataURL('image/png');
+      photo.setAttribute('src', data);
+    } else {
+      clearphoto(photo, canvas);
     }
-  }
-  return options;
+    video.classList.remove('focus');
+  }, 1000);
 };
 
 exports.startRecording = startRecording;
-exports.stopRecording = stopRecording;
 exports.play = play;
+exports.clearphoto = clearphoto;
+exports.takepicture = takepicture;
 
 /***/ })
 
