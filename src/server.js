@@ -13,6 +13,10 @@ const app = express()
 app.use(express.static(path.join(__dirname, '../dist')))
 
 const httpServer = http.createServer(app)
+http.get('/*', (req, res) => {  
+  res.redirect('https://' + req.headers.host + req.url)
+})
+
 const httpsServer = https.createServer(credentials, app)
 
 let multer = require('multer')

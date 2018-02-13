@@ -8,7 +8,7 @@ const startup = () => {
   let video = document.getElementById('video')
   let canvas = document.getElementById('canvas')
   let photo = document.getElementById('photo')
-  let startbutton = document.getElementById('startbutton')
+  let startButton = document.getElementById('startButton')
   let playButton = document.getElementById('doTheThing')
   let locationButton = document.getElementById('getMyLocation')
 
@@ -39,7 +39,7 @@ const startup = () => {
     canvas.setAttribute('height', height)
   }, false)
 
-  startbutton.addEventListener('click', (ev) => takepicture(photo, video, canvas, height, width))
+  startButton.addEventListener('click', (ev) => takepicture(photo, video, canvas, height, width))
 
   playButton.addEventListener('click', (ev) => play())
 
