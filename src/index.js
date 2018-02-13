@@ -1,4 +1,5 @@
-const { play, clearphoto, takepicture } = require('./record')
+const { play, clearphoto, takepicture } = require('./cameracapture/record')
+const { get_location } = require('./geolocation/geolocation')
 
 const width = 1080
 let height
@@ -9,6 +10,7 @@ const startup = () => {
   let photo = document.getElementById('photo')
   let startButton = document.getElementById('startButton')
   let playButton = document.getElementById('doTheThing')
+  let locationButton = document.getElementById('getMyLocation')
 
   navigator.getMedia = (navigator.getUserMedia ||
     navigator.webkitGetUserMedia ||
@@ -40,6 +42,8 @@ const startup = () => {
   startButton.addEventListener('click', (ev) => takepicture(photo, video, canvas, height, width))
 
   playButton.addEventListener('click', (ev) => play())
+
+  locationButton.addEventListener('click', (ev) => get_location())
 
   clearphoto(photo, canvas)
 }

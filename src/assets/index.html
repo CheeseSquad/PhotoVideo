@@ -1,12 +1,14 @@
 <!doctype html>
 <html>
+
 <head>
 	<title>WebRTC: Still photo capture demo</title>
 	<meta charset='utf-8'>
 	<link rel="stylesheet" href="main.css" type="text/css" media="all">
-	<script src="bundle.js">
-	</script>
+	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+	<script src="bundle.js"></script>
 </head>
+
 <body>
 <div class="contentarea">
     <video class="" id="video">Video stream not available. Please refresh the page and click 'allow' on the prompt asking for camera access. If you do not get prompted, your browser may be out of date or the camera is unavailable..</video>
@@ -27,5 +29,10 @@
     <img id="photo" alt="The screen capture will appear in this box."> 
   </div>
 </div>
+		<button id="getMyLocation">Where am I</button>
+		<div id="geo-wrapper"></div>
+		<p id="msg"></p>
+		<p id="lat">Blank</p>
+		<p id="long">Blank</p>
 </body>
 </html>

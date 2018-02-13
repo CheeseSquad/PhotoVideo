@@ -1851,7 +1851,7 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
-/***/ "./src/helpers.js":
+/***/ "./src/cameracapture/helpers.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1889,67 +1889,7 @@ var setMimeType = exports.setMimeType = function setMimeType() {
 
 /***/ }),
 
-/***/ "./src/index.js":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _require = __webpack_require__("./src/record.js"),
-    play = _require.play,
-    clearphoto = _require.clearphoto,
-    takepicture = _require.takepicture;
-
-var width = 1080;
-var height = void 0;
-
-var startup = function startup() {
-  var video = document.getElementById('video');
-  var canvas = document.getElementById('canvas');
-  var photo = document.getElementById('photo');
-  var startbutton = document.getElementById('startbutton');
-  var playButton = document.getElementById('doTheThing');
-
-  navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-  navigator.getMedia({ video: true, audio: false }, function (stream) {
-    if (navigator.mozGetUserMedia) {
-      video.mozSrcObject = stream;
-    } else {
-      var vendorURL = window.URL || window.webkitURL;
-      video.src = vendorURL.createObjectURL(stream);
-    }
-    window.stream = stream;
-    video.play();
-  }, function (err) {
-    console.log('An error occured! ' + err);
-  });
-
-  video.addEventListener('canplay', function (ev) {
-    height = video.videoHeight / (video.videoWidth / width);
-
-    video.setAttribute('width', width);
-    video.setAttribute('height', height);
-    canvas.setAttribute('width', width);
-    canvas.setAttribute('height', height);
-  }, false);
-
-  startbutton.addEventListener('click', function (ev) {
-    return takepicture(photo, video, canvas, height, width);
-  });
-
-  playButton.addEventListener('click', function (ev) {
-    return play();
-  });
-
-  clearphoto(photo, canvas);
-};
-
-window.addEventListener('load', startup, false);
-
-/***/ }),
-
-/***/ "./src/record.js":
+/***/ "./src/cameracapture/record.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1960,7 +1900,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 var axios = __webpack_require__("./node_modules/axios/index.js");
 
-var _require = __webpack_require__("./src/helpers.js"),
+var _require = __webpack_require__("./src/cameracapture/helpers.js"),
     setMimeType = _require.setMimeType,
     MediaRecorderPromise = _require.MediaRecorderPromise;
 
@@ -2046,6 +1986,137 @@ var takepicture = function takepicture(photo, video, canvas, height, width) {
 exports.play = play;
 exports.clearphoto = clearphoto;
 exports.takepicture = takepicture;
+
+/***/ }),
+
+/***/ "./src/geolocation/geolocation.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var supports_geolocation = function supports_geolocation() {
+    return !!navigator.geolocation;
+};
+
+var get_location = function get_location() {
+    if (supports_geolocation()) {
+        navigator.geolocation.getCurrentPosition(show_map, handle_error);
+    } else {
+        // no native support;
+        document.getElementById('msg').text = 'Your browser doesn\'t support geolocation!';
+    }
+};
+
+var show_map = function show_map(position) {
+    var latitude = position.coords.latitude;
+    var longitude = position.coords.longitude;
+    // let's show a map or do something interesting!
+
+    document.getElementById('geo-wrapper').css = { 'width': '640px', 'height': '480px' };
+
+    var latlng = new google.maps.LatLng(latitude, longitude);
+    var myOptions = {
+        zoom: 10,
+        center: latlng,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    var map = new google.maps.Map(document.getElementById('geo-wrapper'), myOptions);
+
+    var marker = new google.maps.Marker({
+        position: latlng,
+        title: "You are here (more or less)!"
+    });
+
+    // To add the marker to the map, call setMap();
+    marker.setMap(map);
+
+    console.log('Lat', latitude, 'Long', longitude);
+
+    document.getElementById("msg").innerHTML = 'Your browser thinks you are here:';
+    document.getElementById('lat').innerHTML = 'Latitude: ' + latitude;
+    document.getElementById('long').innerHTML = 'Longitude: ' + longitude;
+};
+
+var handle_error = function handle_error(err) {
+    if (err.code == 1) {
+        // user said no!
+        document.getElementById('msg').text = 'You chose not to share your location.';
+    }
+};
+
+exports.get_location = get_location;
+
+/***/ }),
+
+/***/ "./src/index.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _require = __webpack_require__("./src/cameracapture/record.js"),
+    play = _require.play,
+    clearphoto = _require.clearphoto,
+    takepicture = _require.takepicture;
+
+var _require2 = __webpack_require__("./src/geolocation/geolocation.js"),
+    get_location = _require2.get_location;
+
+var width = 1080;
+var height = void 0;
+
+var startup = function startup() {
+  var video = document.getElementById('video');
+  var canvas = document.getElementById('canvas');
+  var photo = document.getElementById('photo');
+  var startbutton = document.getElementById('startbutton');
+  var playButton = document.getElementById('doTheThing');
+  var locationButton = document.getElementById('getMyLocation');
+
+  navigator.getMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+  navigator.getMedia({ video: true, audio: false }, function (stream) {
+    if (navigator.mozGetUserMedia) {
+      video.mozSrcObject = stream;
+    } else {
+      var vendorURL = window.URL || window.webkitURL;
+      video.src = vendorURL.createObjectURL(stream);
+    }
+    window.stream = stream;
+    video.play();
+  }, function (err) {
+    console.log('An error occured! ' + err);
+  });
+
+  video.addEventListener('canplay', function (ev) {
+    height = video.videoHeight / (video.videoWidth / width);
+
+    video.setAttribute('width', width);
+    video.setAttribute('height', height);
+    canvas.setAttribute('width', width);
+    canvas.setAttribute('height', height);
+  }, false);
+
+  startbutton.addEventListener('click', function (ev) {
+    return takepicture(photo, video, canvas, height, width);
+  });
+
+  playButton.addEventListener('click', function (ev) {
+    return play();
+  });
+
+  locationButton.addEventListener('click', function (ev) {
+    return get_location();
+  });
+
+  clearphoto(photo, canvas);
+};
+
+window.addEventListener('load', startup, false);
 
 /***/ })
 
