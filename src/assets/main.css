@@ -9,6 +9,7 @@ body {
   margin: auto;
   display: block;
   background-color: black;
+  overflow: hidden;
 }
 
 #startButton {
