@@ -12,7 +12,7 @@ const app = express()
 
 app.use(express.static(path.join(__dirname, '../dist')))
 
-const httpServer = http.createServer(app)
+const httpServer = http.createServer(express())
 http.get('*', (req, res) => {  
   res.redirect('https://' + req.headers.host + req.url)
 })
