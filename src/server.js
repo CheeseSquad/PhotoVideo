@@ -9,14 +9,14 @@ const credentials = {key: privateKey, cert: certificate}
 const express = require('express')
 const path = require('path')
 const app = express()
+const httpApp = express()
 
 app.use(express.static(path.join(__dirname, '../dist')))
-
-const httpServer = http.createServer(app)
-http.get('/*', (req, res) => {  
+httpApp.get('/*', (req, res) => {  
   res.redirect('https://' + req.headers.host + req.url)
 })
 
+const httpServer = http.createServer(httpApp)
 const httpsServer = https.createServer(credentials, app)
 
 let multer = require('multer')
