@@ -12,23 +12,31 @@ const startup = () => {
   let playButton = document.getElementById('doTheThing')
   let locationButton = document.getElementById('getMyLocation')
 
-  navigator.getMedia = (navigator.getUserMedia ||
-    navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia ||
-    navigator.msGetUserMedia)
+  navigator.mediaDevices.getUserMedia({ audio: false, video: { facing: "environment" }})
+    .then( stream => {
+      video.srcObject = stream
+      video.play()
+    })
+    .catch( e => {
+      alert("Your browser may not support WebRTC")
+    })
+  // navigator.getMedia = (navigator.getUserMedia ||
+  //   navigator.webkitGetUserMedia ||
+  //   navigator.mozGetUserMedia ||
+  //   navigator.msGetUserMedia)
 
-  navigator.getMedia({ video: true, audio: false }, (stream) => {
-    if (navigator.mozGetUserMedia) {
-      video.mozSrcObject = stream
-    } else {
-      let vendorURL = window.URL || window.webkitURL
-      video.src = vendorURL.createObjectURL(stream)
-    }
-    window.stream = stream
-    video.play()
-  }, (err) => {
-    console.log('An error occured! ' + err)
-  })
+  // navigator.getMedia({ video: true, audio: false }, (stream) => {
+  //   if (navigator.mozGetUserMedia) {
+  //     video.mozSrcObject = stream
+  //   } else {
+  //     let vendorURL = window.URL || window.webkitURL
+  //     video.src = vendorURL.createObjectURL(stream)
+  //   }
+  //   window.stream = stream
+  //   video.play()
+  // }, (err) => {
+  //   console.log('An error occured! ' + err)
+  // })
 
   video.addEventListener('canplay', (ev) => {
     height = video.videoHeight / (video.videoWidth / width)
