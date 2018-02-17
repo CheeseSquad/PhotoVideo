@@ -24,7 +24,9 @@ module.exports = {
     new webpack.NamedModulesPlugin(),
     new CopyWebpackPlugin([
             { from: 'src/assets/index.html', to: '.' },
-            { from: 'src/assets/main.css', to: '.' }
+            { from: 'src/assets/main.css', to: '.' },
+            { from: 'src/assets/test.html', to: '.' },
+            { from: 'src/assets/p5.min.js', to: '.' }
     ])
   ],
   devServer: {
