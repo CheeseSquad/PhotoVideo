@@ -1,9 +1,16 @@
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
-const privateKey = fs.readFileSync('./ssl/apache-selfsigned.key', 'utf8')
-const certificate = fs.readFileSync('./ssl/apache-selfsigned.crt', 'utf8')
+const privateKey, certificate
 
+try {
+  privateKey = fs.readFileSync('/etc/letsencrypt/live/video.marcgajdosik.com/privkey.pem', 'utf8')
+  certificate = fs.readFileSync('/etc/letsencrypt/live/video.marcgajdosik.com/fullchain.pem', 'utf8')
+}
+catch (err) {
+  privateKey = fs.readFileSync('./ssl/apache-selfsigned.key', 'utf8')
+  certificate = fs.readFileSync('./ssl/apache-selfsigned.crt', 'utf8')
+}
 const credentials = {key: privateKey, cert: certificate}
 
 const express = require('express')
