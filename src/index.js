@@ -43,8 +43,6 @@ const startup = () => {
 
     video.setAttribute('width', width)
     video.setAttribute('height', height)
-    alert(height)
-    alert(width)
     canvas.setAttribute('width', width)
     canvas.setAttribute('height', height)
   }, false)
