@@ -13,7 +13,7 @@ const startRecording = () => {
     mediaRecorder.start(10)
     setTimeout(() => { mediaRecorder.stop() }, 3000)
     console.log('MediaRecorder started', mediaRecorder)
-  }).catch(e => console('We had an error', e))
+  }).catch(e => console.log('We had an error', e))
 }
 
 const play = () => {
