@@ -1,0 +1,40 @@
+<script src="./p5.min.js"></script>
+<script>
+    window.absolute = 0
+    window.alpha = 0
+    window.beta = 0
+    window.gamma = 0
+(function() {
+    var element = document.getElementById('gyroscope');
+    var compass = document.getElementById('compass');
+    compass.hidden = true;
+
+    function handleOrientation(event) {
+        window.absolute = event.absolute;
+        window.alpha = event.alpha;
+        window.beta = event.beta;
+        window.gamma = event.gamma;
+        // if (Math.abs(beta) + Math.abs(gamma) < 1.8) {
+        //     element.innerHTML += 'Your Device is probably laying on a Table';
+        // } else {
+        //     element.innerHTML += 'Your Device is probably in your Hands';
+        // }
+    }
+    window.addEventListener('deviceorientation', handleOrientation);
+}());
+
+function setup() {
+    createCanvas(720, 400, WEBGL);
+}
+
+function draw() {
+    background(200);
+
+    stroke(50);
+    fill(100);
+    rotateZ(window.alpha - 180)
+    rotateX(window.beta)
+    rotateY(-window.gamma)
+    box(26.4 *3, 54.4 *3, 2.8 *3);
+}
+</script>
