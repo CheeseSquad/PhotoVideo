@@ -1,7 +1,7 @@
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
-const privateKey, certificate
+let privateKey, certificate
 
 try {
   privateKey = fs.readFileSync('/etc/letsencrypt/live/video.marcgajdosik.com/privkey.pem', 'utf8')
